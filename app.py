@@ -7,7 +7,6 @@ FPS = 30
 
 NUMROWS = 10
 NUMCOLS = 10
-NUMBOMBS = 5
 
 CELLSIZE = 40
 
@@ -18,19 +17,23 @@ WINDOWHEIGHT = FIELDHEIGHT + 200
 XMARGIN = int((WINDOWWIDTH - FIELDWIDTH) // 2)
 YMARGIN = int((WINDOWHEIGHT - FIELDHEIGHT) // 2)
 
+BUTTONWIDTH = 160
+BUTTONHEIGHT = 40
+
 #            R    G    B
-BLACK   = ( 0, 0, 0)
-WHITE   = (255, 255 , 255)
-RED     = (255, 0, 0)
-GREEN   = (0, 255, 0)
-BLUE    = (0, 0, 255)
-PINK    = (255, 192, 203)
+BLACK   = (    0,   0,  0)
+WHITE   = (  255, 255,  255)
+RED     = (  255,   0,  0)
+GREEN   = (    0, 255,  0)
+BLUE    = (    0,   0,  255)
+PINK    = (  255, 192,  203)
+YELLOW = ( 255, 255, 0)
 
 GAMENAME = "SAPER GAME"
 
-EASY = 1
-MEDIUM = 2
-HARD = 3
+EASY = 5
+MEDIUM = 15
+HARD = 25
 
 BOMBVALUE = -1
 
@@ -44,63 +47,114 @@ def game():
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     pygame.display.set_caption(GAMENAME)
 
-    board = drawBoard(NUMCOLS, NUMROWS)
-    clickedCells = [[0] * NUMCOLS for _ in range(NUMROWS)]
     resetGame = False
     hasLost = False
-
-    DISPLAYSURF.fill(BLACK)
-    drawGrid()
-    resetButtonWidth, resetButtonHeight, resetButtonX, resetButtonY = drawButtons()
-
+    game = False
+    difficulty = 0
     while True:
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    mousex, mousey = event.pos
-                    if pygame.Rect(resetButtonX-(resetButtonWidth/2), resetButtonY-(resetButtonHeight/2), resetButtonWidth, resetButtonHeight).collidepoint(mousex, mousey):
-                        resetGame = True
-                    else:
-                        row, col = getCellAtPixel(mousex, mousey)
-                        if row is not None and col is not None:
-                            revealCell(row, col, clickedCells, board)
-                elif event.button == 3:
-                    mousex, mousey = event.pos
-                    row, col = getCellAtPixel(mousex, mousey)
-                    if row is not None and col is not None:
-                        if clickedCells[row][col] == 0:
-                            clickedCells[row][col] = 2
-                        elif clickedCells[row][col] == 2:
-                            clickedCells[row][col] = 0
-
-
-        if hasLost:
-            hasLostScreen()
-
-        else:
-            hasLost = drawCells(clickedCells, board)
-            hasWon(board, clickedCells)
-
-        if resetGame:
+        if not game:
             DISPLAYSURF.fill(BLACK)
-            drawGrid()
+            easyRect, midRect, hardRect = drawInputBox()
+
+            while not game:
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == MOUSEBUTTONDOWN:
+                        if easyRect.collidepoint(event.pos):
+                            difficulty = EASY
+                        elif midRect.collidepoint(event.pos):
+                            difficulty = MEDIUM
+                        elif hardRect.collidepoint(event.pos):
+                            difficulty = HARD
+                if difficulty != 0:
+                    game = True
+                pygame.display.flip()
+                FPSCLOCK.tick(FPS)
+
+
+        elif game:
+            DISPLAYSURF.fill(BLACK)
             resetButtonWidth, resetButtonHeight, resetButtonX, resetButtonY = drawButtons()
-            board = drawBoard(NUMCOLS, NUMROWS)
             clickedCells = [[0] * NUMCOLS for _ in range(NUMROWS)]
-            resetGame = False
-            hasLost = False
+            board = drawBoard(NUMCOLS, NUMROWS, difficulty)
+            drawGrid()
+            while game:
 
-        pygame.display.flip()
-        FPSCLOCK.tick(FPS)
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        pygame.quit()
+                        sys.exit()
+                    if event.type == MOUSEBUTTONDOWN:
+                        if event.button == 1:
+                            mousex, mousey = event.pos
+                            if pygame.Rect(resetButtonX-(resetButtonWidth/2), resetButtonY-(resetButtonHeight/2), resetButtonWidth, resetButtonHeight).collidepoint(mousex, mousey):
+                                resetGame = True
+                            else:
+                                row, col = getCellAtPixel(mousex, mousey)
+                                if row is not None and col is not None:
+                                    revealCell(row, col, clickedCells, board)
+                        elif event.button == 3:
+                            mousex, mousey = event.pos
+                            row, col = getCellAtPixel(mousex, mousey)
+                            if row is not None and col is not None:
+                                if clickedCells[row][col] == 0:
+                                    clickedCells[row][col] = 2
+                                elif clickedCells[row][col] == 2:
+                                    clickedCells[row][col] = 0
+
+                if hasLost:
+                    hasLostScreen()
+
+                else:
+                    hasLost = drawCells(clickedCells, board)
+                    hasWon(board, clickedCells, difficulty)
+
+                if resetGame:
+                    resetGame = False
+                    hasLost = False
+                    game = False
+                    difficulty = 0
+
+                pygame.display.flip()
+                FPSCLOCK.tick(FPS)
 
 
-def drawBoard(rows, columns):
+def drawInputBox():
+    DISPLAYSURF.fill(BLACK)
+
+    easyRect = pygame.Rect((WINDOWWIDTH//2)-(BUTTONWIDTH//2), (WINDOWHEIGHT//4)-(BUTTONHEIGHT//2), BUTTONWIDTH, BUTTONHEIGHT)
+    pygame.draw.rect(DISPLAYSURF, GREEN, easyRect)
+
+    easyText = FONT.render('EASY', 1, BLACK)
+    easyRectText = easyText.get_rect()
+    easyRectText.center = (WINDOWWIDTH // 2, WINDOWHEIGHT//4)
+    DISPLAYSURF.blit(easyText, easyRectText)
+
+    midRect = pygame.Rect((WINDOWWIDTH//2)-(BUTTONWIDTH//2), (2*WINDOWHEIGHT//4)-(BUTTONHEIGHT//2), BUTTONWIDTH, BUTTONHEIGHT)
+    pygame.draw.rect(DISPLAYSURF, YELLOW, midRect)
+
+    midText = FONT.render('MEDIUM', 1, BLACK)
+    midRectText = midText.get_rect()
+    midRectText.center = (WINDOWWIDTH // 2, 2 * WINDOWHEIGHT // 4)
+    DISPLAYSURF.blit(midText, midRectText)
+
+    hardRect = pygame.Rect((WINDOWWIDTH // 2) - (BUTTONWIDTH // 2), (3 * WINDOWHEIGHT // 4) - (BUTTONHEIGHT // 2), BUTTONWIDTH, BUTTONHEIGHT)
+    pygame.draw.rect(DISPLAYSURF, RED, hardRect)
+
+    hardText = FONT.render('HARD', 1, BLACK)
+    hardRectText = hardText.get_rect()
+    hardRectText.center = (WINDOWWIDTH // 2, 3 * WINDOWHEIGHT // 4)
+    DISPLAYSURF.blit(hardText, hardRectText)
+
+    return easyRect, midRect, hardRect
+
+
+def drawBoard(rows, columns, difficulty):
     flatten = [0] * (rows * columns)
-    bombsIdxs = random.sample(range(rows * columns), NUMBOMBS)
+    bombsIdxs = random.sample(range(rows * columns), difficulty)
     for index in bombsIdxs:
         flatten[index] = BOMBVALUE
     board = [flatten[i * columns:(i + 1) * columns] for i in range(rows)]
@@ -199,7 +253,7 @@ def drawCells(clickedBoard, board):
     return hasLost
 
 
-def hasWon(board, clickedBoard):
+def hasWon(board, clickedBoard, difficulty):
     flagMatching = 0
     for rowBoard, rowClicked in zip(board, clickedBoard):
         for valBoard, valClicked in zip(rowBoard, rowClicked):
@@ -212,7 +266,7 @@ def hasWon(board, clickedBoard):
             if valClicked == 2:
                 flagPlaced += 1
 
-    if flagMatching == NUMBOMBS and flagPlaced == NUMBOMBS:
+    if flagMatching == difficulty and flagPlaced == difficulty:
         DISPLAYSURF.fill(BLACK)
         drawButtons()
         gameWinText = FONT.render('GAME WON!!!', 1, WHITE)
