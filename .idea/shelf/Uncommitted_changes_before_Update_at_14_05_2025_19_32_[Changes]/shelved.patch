@@ -1,0 +1,111 @@
+Index: .idea/modules.xml
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+deleted file mode 100644
+--- a/.idea/modules.xml	(revision 8834ac45accd5299322f6164668637fc910a441b)
++++ /dev/null	(revision 8834ac45accd5299322f6164668637fc910a441b)
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ProjectModuleManager">
+-    <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/SaperGame.iml" filepath="$PROJECT_DIR$/.idea/SaperGame.iml" />
+-    </modules>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/SaperGame.iml
+===================================================================
+diff --git a/.idea/SaperGame.iml b/.idea/SaperGame.iml
+deleted file mode 100644
+--- a/.idea/SaperGame.iml	(revision 8834ac45accd5299322f6164668637fc910a441b)
++++ /dev/null	(revision 8834ac45accd5299322f6164668637fc910a441b)
+@@ -1,10 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<module type="PYTHON_MODULE" version="4">
+-  <component name="NewModuleRootManager">
+-    <content url="file://$MODULE_DIR$">
+-      <excludeFolder url="file://$MODULE_DIR$/venv" />
+-    </content>
+-    <orderEntry type="jdk" jdkName="Python 3.12 (SaperGame)" jdkType="Python SDK" />
+-    <orderEntry type="sourceFolder" forTests="false" />
+-  </component>
+-</module>
+\ No newline at end of file
+Index: .idea/inspectionProfiles/profiles_settings.xml
+===================================================================
+diff --git a/.idea/inspectionProfiles/profiles_settings.xml b/.idea/inspectionProfiles/profiles_settings.xml
+deleted file mode 100644
+--- a/.idea/inspectionProfiles/profiles_settings.xml	(revision 8834ac45accd5299322f6164668637fc910a441b)
++++ /dev/null	(revision 8834ac45accd5299322f6164668637fc910a441b)
+@@ -1,6 +0,0 @@
+-<component name="InspectionProjectProfileManager">
+-  <settings>
+-    <option name="USE_PROJECT_PROFILE" value="false" />
+-    <version value="1.0" />
+-  </settings>
+-</component>
+\ No newline at end of file
+Index: .idea/.gitignore
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+deleted file mode 100644
+--- a/.idea/.gitignore	(revision 8834ac45accd5299322f6164668637fc910a441b)
++++ /dev/null	(revision 8834ac45accd5299322f6164668637fc910a441b)
+@@ -1,8 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+-# Editor-based HTTP Client requests
+-/httpRequests/
+-# Datasource local storage ignored files
+-/dataSources/
+-/dataSources.local.xml
+Index: .idea/vcs.xml
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+deleted file mode 100644
+--- a/.idea/vcs.xml	(revision 8834ac45accd5299322f6164668637fc910a441b)
++++ /dev/null	(revision 8834ac45accd5299322f6164668637fc910a441b)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="VcsDirectoryMappings">
+-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+-  </component>
+-</project>
+\ No newline at end of file
+Index: .idea/inspectionProfiles/Project_Default.xml
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+deleted file mode 100644
+--- a/.idea/inspectionProfiles/Project_Default.xml	(revision 8834ac45accd5299322f6164668637fc910a441b)
++++ /dev/null	(revision 8834ac45accd5299322f6164668637fc910a441b)
+@@ -1,26 +0,0 @@
+-<component name="InspectionProjectProfileManager">
+-  <profile version="1.0">
+-    <option name="myName" value="Project Default" />
+-    <inspection_tool class="Eslint" enabled="true" level="WARNING" enabled_by_default="true" />
+-    <inspection_tool class="PyCompatibilityInspection" enabled="true" level="WARNING" enabled_by_default="true">
+-      <option name="ourVersions">
+-        <value>
+-          <list size="4">
+-            <item index="0" class="java.lang.String" itemvalue="3.13" />
+-            <item index="1" class="java.lang.String" itemvalue="3.10" />
+-            <item index="2" class="java.lang.String" itemvalue="3.11" />
+-            <item index="3" class="java.lang.String" itemvalue="3.12" />
+-          </list>
+-        </value>
+-      </option>
+-    </inspection_tool>
+-    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+-      <option name="ignoredErrors">
+-        <list>
+-          <option value="N803" />
+-        </list>
+-      </option>
+-    </inspection_tool>
+-    <inspection_tool class="TsLint" enabled="true" level="WARNING" enabled_by_default="true" />
+-  </profile>
+-</component>
+\ No newline at end of file

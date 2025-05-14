@@ -7,7 +7,7 @@ FPS = 30
 
 NUMROWS = 10
 NUMCOLS = 10
-NUMBOMBS = 2
+NUMBOMBS = 5
 
 CELLSIZE = 40
 
@@ -19,12 +19,12 @@ XMARGIN = int((WINDOWWIDTH - FIELDWIDTH) // 2)
 YMARGIN = int((WINDOWHEIGHT - FIELDHEIGHT) // 2)
 
 #            R    G    B
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-PINK = (255, 192, 203)
+BLACK   = ( 0, 0, 0)
+WHITE   = (255, 255 , 255)
+RED     = (255, 0, 0)
+GREEN   = (0, 255, 0)
+BLUE    = (0, 0, 255)
+PINK    = (255, 192, 203)
 
 GAMENAME = "SAPER GAME"
 
@@ -35,7 +35,7 @@ HARD = 3
 BOMBVALUE = -1
 
 
-def main():
+def game():
     global FPSCLOCK, DISPLAYSURF, FONT
     pygame.init()
     FONT = pygame.font.SysFont(None, 24)
@@ -57,7 +57,8 @@ def main():
 
         for event in pygame.event.get():
             if event.type == QUIT:
-                terminate()
+                pygame.quit()
+                sys.exit()
             if event.type == MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mousex, mousey = event.pos
@@ -71,29 +72,30 @@ def main():
                     mousex, mousey = event.pos
                     row, col = getCellAtPixel(mousex, mousey)
                     if row is not None and col is not None:
-                        markFlag(row, col, clickedCells, board)
-
-        if not hasLost:
-            if isinstance(drawCells(clickedCells, board), bool):
-                hasLost = drawCells(clickedCells, board)
-            else:
-
-                drawCells(clickedCells, board)
-                hasWon(board, clickedCells)
-
-                if resetGame:
-                    DISPLAYSURF.fill(BLACK)
-                    drawGrid()
-                    resetButtonWidth, resetButtonHeight, resetButtonX, resetButtonY = drawButtons()
-                    board = drawBoard(NUMCOLS, NUMROWS)
-                    clickedCells = [[0] * NUMCOLS for _ in range(NUMROWS)]
-                    resetGame = False
-
-            pygame.display.flip()
-            FPSCLOCK.tick(FPS)
+                        if clickedCells[row][col] == 0:
+                            clickedCells[row][col] = 2
+                        elif clickedCells[row][col] == 2:
+                            clickedCells[row][col] = 0
 
 
+        if hasLost:
+            hasLostScreen()
 
+        else:
+            hasLost = drawCells(clickedCells, board)
+            hasWon(board, clickedCells)
+
+        if resetGame:
+            DISPLAYSURF.fill(BLACK)
+            drawGrid()
+            resetButtonWidth, resetButtonHeight, resetButtonX, resetButtonY = drawButtons()
+            board = drawBoard(NUMCOLS, NUMROWS)
+            clickedCells = [[0] * NUMCOLS for _ in range(NUMROWS)]
+            resetGame = False
+            hasLost = False
+
+        pygame.display.flip()
+        FPSCLOCK.tick(FPS)
 
 
 def drawBoard(rows, columns):
@@ -169,6 +171,7 @@ def revealCell(row, col, clickedBoard, board):
 
 
 def drawCells(clickedBoard, board):
+    hasLost = False
     for r in range(NUMROWS):
         for c in range(NUMCOLS):
             x, y = XMARGIN + c * CELLSIZE, YMARGIN + r * CELLSIZE
@@ -176,59 +179,24 @@ def drawCells(clickedBoard, board):
                 pygame.draw.rect(DISPLAYSURF, GREEN, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
             elif clickedBoard[r][c] == 1:
                 val = board[r][c]
-                pygame.draw.rect(DISPLAYSURF, BLUE, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
-                if val > 0:
+                if val == 0:
+                    pygame.draw.rect(DISPLAYSURF, BLUE, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
+                elif val > 0:
+                    pygame.draw.rect(DISPLAYSURF, BLUE, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
                     text = FONT.render(str(val), 1, WHITE)
                     tx = x + CELLSIZE // 2 - text.get_width() // 2
                     ty = y + CELLSIZE // 2 - text.get_height() // 2
                     DISPLAYSURF.blit(text, (tx, ty))
                 elif val == BOMBVALUE:
-                    pygame.draw.rect(DISPLAYSURF, RED, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
-                    cactusImg = pygame.image.load("cactus.png")
-                    cactusX = x + (CELLSIZE - cactusImg.get_rect().width) // 2
-                    cactusY = y + (CELLSIZE - cactusImg.get_rect().height) // 2
-                    DISPLAYSURF.blit(cactusImg, (cactusX, cactusY))
-                    return gameOver()
+                    hasLost = True
+
             elif clickedBoard[r][c] == 2:
                 pygame.draw.rect(DISPLAYSURF, PINK, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
                 flagImg = pygame.image.load("finish-flag.png")
                 flagX = x + (CELLSIZE - flagImg.get_rect().width) // 2
                 flagY = y + (CELLSIZE - flagImg.get_rect().height) // 2
                 DISPLAYSURF.blit(flagImg, (flagX, flagY))
-
-
-def gameOver():
-    DISPLAYSURF.fill(BLACK)
-    gameOverText = FONT.render('GAME OVER', 1, BLACK)
-    gameOverRect = gameOverText.get_rect()
-    gameOverRect.center = (WINDOWWIDTH / 2, WINDOWHEIGHT / 2)
-    DISPLAYSURF.blit(gameOverText, gameOverRect)
-    drawButtons()
-    hasLost = True
     return hasLost
-
-
-def checkForKeyPress():
-    if len(pygame.event.get(QUIT)) > 0:
-        terminate()
-
-    keyUpEvents = pygame.event.get(KEYUP)
-    if len(keyUpEvents) == 0:
-        return None
-    if keyUpEvents[0].key == K_ESCAPE:
-        terminate()
-    return keyUpEvents[0].key
-
-
-def terminate():
-    pygame.quit()
-    sys.exit()
-
-
-def markFlag(row, col, clickedBoard, board):
-    if clickedBoard[row][col] == 1 or clickedBoard[row][col] == 2:
-        return
-    clickedBoard[row][col] = 2
 
 
 def hasWon(board, clickedBoard):
@@ -245,24 +213,32 @@ def hasWon(board, clickedBoard):
                 flagPlaced += 1
 
     if flagMatching == NUMBOMBS and flagPlaced == NUMBOMBS:
-        gameWinText = FONT.render('GAME WON!!!', 1, BLACK)
+        DISPLAYSURF.fill(BLACK)
+        drawButtons()
+        gameWinText = FONT.render('GAME WON!!!', 1, WHITE)
         gameWinRect = gameWinText.get_rect()
-        gameWinRect.center = (WINDOWWIDTH / 2, WINDOWHEIGHT / 2)
+        gameWinRect.center = (WINDOWWIDTH // 2, WINDOWHEIGHT // 2)
         DISPLAYSURF.blit(gameWinText, gameWinRect)
         pygame.display.flip()
-        while True:
-            if checkForKeyPress():
-                pygame.event.get()  # clear event queue
-                return
+
+
+def hasLostScreen():
+    DISPLAYSURF.fill(BLACK)
+    drawButtons()
+    gameOverText = FONT.render('GAME OVER', 1, WHITE)
+    gameOverRect = gameOverText.get_rect()
+    gameOverRect.center = (WINDOWWIDTH // 2, WINDOWHEIGHT // 2)
+    DISPLAYSURF.blit(gameOverText, gameOverRect)
+    pygame.display.flip()
 
 
 def drawButtons():
     resetText = FONT.render('RESET', 1, WHITE)
     resetRect = resetText.get_rect()
-    resetRect.center = (WINDOWWIDTH / 2, FIELDHEIGHT + (WINDOWHEIGHT - FIELDHEIGHT)/3*2)
+    resetRect.center = (WINDOWWIDTH // 2, FIELDHEIGHT + (WINDOWHEIGHT - FIELDHEIGHT)//3*2)
     DISPLAYSURF.blit(resetText, resetRect)
     return resetRect.width, resetRect.height, WINDOWWIDTH / 2, FIELDHEIGHT + (WINDOWHEIGHT - FIELDHEIGHT)/3*2
 
 
 if __name__ == '__main__':
-    main()
+    game()
