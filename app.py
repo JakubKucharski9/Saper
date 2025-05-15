@@ -111,7 +111,7 @@ def game():
                 else:
                     hasLost = drawCells(clickedCells, board)
                     hasWon(board, clickedCells, difficulty)
-                    showFlagCounter(clickedCells)
+                    showFlagCounter(clickedCells, difficulty)
 
                 if resetGame:
                     resetGame = False
@@ -295,9 +295,9 @@ def drawButtons():
     return resetRect.width, resetRect.height, WINDOWWIDTH / 2, FIELDHEIGHT + (WINDOWHEIGHT - FIELDHEIGHT)/3*2
 
 
-def showFlagCounter(clickedBoard):
+def showFlagCounter(clickedBoard, difficulty):
     placedFlags = sum(row.count(2) for row in clickedBoard)
-    placedFlagsText = FONT.render(f'FLAG PLACED: {placedFlags}', 1, WHITE)
+    placedFlagsText = FONT.render(f'FLAG PLACED: {placedFlags}/{difficulty}', 1, WHITE)
     placedFlagsRect = placedFlagsText.get_rect()
     placedFlagsRect.center = (WINDOWWIDTH // 2, (WINDOWHEIGHT - FIELDHEIGHT) // 3)
     DISPLAYSURF.fill(BLACK, placedFlagsRect)
