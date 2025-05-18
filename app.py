@@ -5,17 +5,23 @@ from pygame.locals import *
 
 FPS = 30
 
-NUMROWS = 10
-NUMCOLS = 10
+# Board sizes for different difficulties
+EASY_SIZE = 7
+MEDIUM_SIZE = 10
+HARD_SIZE = 15
 
-CELLSIZE = 40
+# Game difficulty settings
+EASY = 7
+MEDIUM = 20
+HARD = 50
 
-FIELDWIDTH = NUMCOLS * CELLSIZE
-FIELDHEIGHT = NUMROWS * CELLSIZE
-WINDOWWIDTH = FIELDWIDTH + 200
-WINDOWHEIGHT = FIELDHEIGHT + 200
-XMARGIN = int((WINDOWWIDTH - FIELDWIDTH) // 2)
-YMARGIN = int((WINDOWHEIGHT - FIELDHEIGHT) // 2)
+CELLSIZE = 30
+
+# Fixed window size
+WINDOWWIDTH = 800
+WINDOWHEIGHT = 600
+
+BOMBVALUE = -1
 
 BUTTONWIDTH = 160
 BUTTONHEIGHT = 40
@@ -28,29 +34,28 @@ GREEN   = (    0, 255,  0)
 BLUE    = (    0,   0,  255)
 PINK    = (  255, 192,  203)
 YELLOW = ( 255, 255, 0)
+TEAL = ( 0, 128, 128)
+CYAN = ( 220, 255, 255)
+MAROON = ( 128, 0, 0)
 
 GAMENAME = "SAPER GAME"
 
-EASY = 5
-MEDIUM = 15
-HARD = 25
-
-BOMBVALUE = -1
-
-
 def game():
-    global FPSCLOCK, DISPLAYSURF, FONT
+    global FPSCLOCK, DISPLAYSURF, FONT, NUMROWS, NUMCOLS, FIELDWIDTH, FIELDHEIGHT, XMARGIN, YMARGIN
     pygame.init()
     FONT = pygame.font.SysFont(None, 24)
 
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     pygame.display.set_caption(GAMENAME)
+    pygame.display.set_icon(pygame.image.load('cactus.png'))
 
     resetGame = False
     hasLost = False
     game = False
     difficulty = 0
+    firstClick = True
+    board = None
     while True:
 
         if not game:
@@ -65,12 +70,20 @@ def game():
                     if event.type == MOUSEBUTTONDOWN:
                         if easyRect.collidepoint(event.pos):
                             difficulty = EASY
+                            NUMROWS = NUMCOLS = EASY_SIZE
                         elif midRect.collidepoint(event.pos):
                             difficulty = MEDIUM
+                            NUMROWS = NUMCOLS = MEDIUM_SIZE
                         elif hardRect.collidepoint(event.pos):
                             difficulty = HARD
+                            NUMROWS = NUMCOLS = HARD_SIZE
                 if difficulty != 0:
+                    FIELDWIDTH = NUMCOLS * CELLSIZE
+                    FIELDHEIGHT = NUMROWS * CELLSIZE
+                    XMARGIN = int((WINDOWWIDTH - FIELDWIDTH) // 2)
+                    YMARGIN = int((WINDOWHEIGHT - FIELDHEIGHT) // 2)
                     game = True
+                    firstClick = True
                 pygame.display.flip()
                 FPSCLOCK.tick(FPS)
 
@@ -79,7 +92,8 @@ def game():
             DISPLAYSURF.fill(BLACK)
             resetButtonWidth, resetButtonHeight, resetButtonX, resetButtonY = drawButtons()
             clickedCells = [[0] * NUMCOLS for _ in range(NUMROWS)]
-            board = drawBoard(NUMCOLS, NUMROWS, difficulty)
+            if board is None:
+                board = drawBoard(NUMCOLS, NUMROWS, difficulty)
             drawGrid()
             while game:
 
@@ -95,6 +109,9 @@ def game():
                             else:
                                 row, col = getCellAtPixel(mousex, mousey)
                                 if row is not None and col is not None:
+                                    if firstClick:
+                                        board = drawBoard(NUMCOLS, NUMROWS, difficulty, row, col)
+                                        firstClick = False
                                     revealCell(row, col, clickedCells, board)
                         elif event.button == 3:
                             mousex, mousey = event.pos
@@ -118,6 +135,8 @@ def game():
                     hasLost = False
                     game = False
                     difficulty = 0
+                    board = None
+                    firstClick = True
 
                 pygame.display.flip()
                 FPSCLOCK.tick(FPS)
@@ -153,9 +172,22 @@ def drawInputBox():
     return easyRect, midRect, hardRect
 
 
-def drawBoard(rows, columns, difficulty):
+def drawBoard(rows, columns, difficulty, firstClickRow=None, firstClickCol=None):
     flatten = [0] * (rows * columns)
     bombsIdxs = random.sample(range(rows * columns), difficulty)
+    
+    # If this is the first click, ensure it's safe
+    if firstClickRow is not None and firstClickCol is not None:
+        firstClickIdx = firstClickRow * columns + firstClickCol
+        if firstClickIdx in bombsIdxs:
+            # Remove the bomb from the clicked position
+            bombsIdxs.remove(firstClickIdx)
+            # Find a new safe position for the bomb
+            safePositions = [i for i in range(rows * columns) if i not in bombsIdxs]
+            if safePositions:
+                newBombPos = random.choice(safePositions)
+                bombsIdxs.append(newBombPos)
+    
     for index in bombsIdxs:
         flatten[index] = BOMBVALUE
     board = [flatten[i * columns:(i + 1) * columns] for i in range(rows)]
@@ -238,7 +270,27 @@ def drawCells(clickedBoard, board):
                     pygame.draw.rect(DISPLAYSURF, BLUE, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
                 elif val > 0:
                     pygame.draw.rect(DISPLAYSURF, BLUE, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
-                    text = FONT.render(str(val), 1, WHITE)
+                    match val:
+                        case 1:
+                            color = CYAN
+                        case 2:
+                            color = RED
+                        case 3:
+                            color = YELLOW
+                        case 4:
+                            color = GREEN
+                        case 5:
+                            color = PINK
+                        case 6:
+                            color = TEAL
+                        case 7:
+                            color = TEAL
+                        case 8:
+                            color = MAROON
+                        case _:
+                            color = None
+
+                    text = FONT.render(str(val), 1, color)
                     tx = x + CELLSIZE // 2 - text.get_width() // 2
                     ty = y + CELLSIZE // 2 - text.get_height() // 2
                     DISPLAYSURF.blit(text, (tx, ty))
@@ -248,6 +300,7 @@ def drawCells(clickedBoard, board):
             elif clickedBoard[r][c] == 2:
                 pygame.draw.rect(DISPLAYSURF, PINK, (x + 1, y + 1, CELLSIZE - 2, CELLSIZE - 2))
                 flagImg = pygame.image.load("finish-flag.png")
+                flagImg = pygame.transform.scale(flagImg, (CELLSIZE - 4, CELLSIZE - 4))
                 flagX = x + (CELLSIZE - flagImg.get_rect().width) // 2
                 flagY = y + (CELLSIZE - flagImg.get_rect().height) // 2
                 DISPLAYSURF.blit(flagImg, (flagX, flagY))
