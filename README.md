@@ -2,6 +2,13 @@
 
 Interaktywna implementacja klasycznego Sapera napisana w Pythonie z wykorzystaniem biblioteki **Pygame**. Gra działa w stałym oknie 800×650 px, obsługuje trzy poziomy trudności i mierzy czas każdej rozgrywki.
 
+| Poziom trudności  | Wielkość planszy  | Ilość bomb | Zawartość bomb |
+| ----------------- |------------------ | ---------- | -------------- |
+| Easy              | 7x7               | 7          | 14%            |
+| Medium            | 10x10             | 20         | 20%            |
+| Hard              | 15x15             | 50         | 22%            |
+
+
 ### Demo możliwe do obejrzenia w filmiku *Saper - Demo.mp4*
 
 ---
