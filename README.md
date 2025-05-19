@@ -2,6 +2,8 @@
 
 Interaktywna implementacja klasycznego Sapera napisana w Pythonie z wykorzystaniem biblioteki **Pygame**. Gra działa w stałym oknie 800×650 px, obsługuje trzy poziomy trudności i mierzy czas każdej rozgrywki.
 
+### Demo możliwe do obejrzenia w filmiku *Saper - Demo.mp4*
+
 ---
 
 ## Wymagania
@@ -48,3 +50,5 @@ python app.py
 | **Licznik flag**                          | Informacja "FLAG PLACED: x/y" nad planszą                                                 |
 | **Stoper + Najlepszy czas**               | Bieżący czas od pierwszego ruchu oraz najlepszy czas dla danego poziomu (w obrębie sesji) |
 | **Przycisk RESET**                        | Restart rozgrywki i powrót do ekranu wyboru trudności                                     |
+
+
